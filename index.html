@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Policy & Terms Generator — Fixed</title>
+<title>Policy & Terms Generator — v2 (Jurisdiction Fix)</title>
 
 <!-- PDF export libs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -46,59 +46,51 @@
   .preview-wrap{display:flex;flex-direction:column;gap:12px}
   .document{background:white;color:#111;padding:28px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.06)}
   .doc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-  .brand-block{display:flex;gap:12px;align-items:center}
-  .brand-logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
   .doc-title{font-size:18px;font-weight:800}
   .section{margin-top:16px}
   .section h3{margin:0 0 8px 0;color:#0f1724;font-size:16px}
   .section p{margin:0;color:#223}
   .footer-small{font-size:12px;color:#596173;margin-top:20px}
   @media (max-width:980px){ .wrap{grid-template-columns:1fr;padding:14px} }
-  /* ensure focus visibility */
-  input:focus, textarea:focus, select:focus { outline: 2px solid rgba(124,58,237,0.25); box-shadow: 0 4px 16px rgba(124,58,237,0.06) }
+  input:focus, textarea:focus, select:focus { outline: 2px solid rgba(124,58,237,0.18); box-shadow: 0 6px 18px rgba(124,58,237,0.06) }
 </style>
 </head>
 <body>
   <div class="wrap">
     <!-- LEFT: form -->
     <div class="panel" id="editorPanel">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1>Policy & Terms Builder</h1>
-          <div class="muted">Type your details — then generate, save or export.</div>
-        </div>
-        <div style="text-align:right"><div class="small">v1 · local</div></div>
-      </div>
+      <h1>Policy & Terms Builder</h1>
+      <div class="muted">All fields are blank by default. Type your values and click Generate.</div>
 
       <label for="company">Company / Site Name</label>
-      <input id="company" name="company" type="text" placeholder="Acme Widgets LLC">
+      <input id="company" type="text" placeholder="Your company or site name">
 
       <label for="siteUrl">Website URL</label>
-      <input id="siteUrl" name="siteUrl" type="text" placeholder="https://example.com">
+      <input id="siteUrl" type="text" placeholder="https://example.com">
 
       <label for="contactEmail">Contact Email</label>
-      <input id="contactEmail" name="contactEmail" type="email" placeholder="privacy@example.com">
+      <input id="contactEmail" type="email" placeholder="privacy@example.com">
 
       <label for="jurisdiction">Headquarters / Jurisdiction</label>
-      <input id="jurisdiction" name="jurisdiction" type="text" placeholder="Delaware, USA">
+      <input id="jurisdiction" type="text" placeholder="e.g. Delaware, USA">
 
-      <label for="services">Services / What you do (short)</label>
-      <input id="services" name="services" type="text" placeholder="SaaS project management / e-commerce">
+      <label for="services">Services / What you do</label>
+      <input id="services" type="text" placeholder="e.g. SaaS project management">
 
       <label for="dataCollected">Data Collected (comma-separated)</label>
-      <input id="dataCollected" name="dataCollected" type="text" placeholder="name, email, payment info, usage data">
+      <input id="dataCollected" type="text" placeholder="name, email, usage data">
 
-      <label for="thirdParties">Third Parties / Integrations (comma-separated)</label>
-      <input id="thirdParties" name="thirdParties" type="text" placeholder="Stripe, Google Analytics, AWS">
+      <label for="thirdParties">Third Parties / Integrations</label>
+      <input id="thirdParties" type="text" placeholder="Stripe, Google Analytics">
 
-      <label for="retention">Retention Policy (summary)</label>
-      <input id="retention" name="retention" type="text" placeholder="We keep data for 3 years unless requested otherwise">
+      <label for="retention">Retention Policy</label>
+      <input id="retention" type="text" placeholder="We retain data for X years">
 
       <label for="effectiveDate">Effective Date</label>
-      <input id="effectiveDate" name="effectiveDate" type="text" placeholder="2025-09-08">
+      <input id="effectiveDate" type="text" placeholder="YYYY-MM-DD">
 
       <label for="tone">Tone / Style</label>
-      <select id="tone" name="tone">
+      <select id="tone">
         <option value="professional">Professional</option>
         <option value="friendly">Friendly</option>
         <option value="minimal">Minimal</option>
@@ -109,14 +101,14 @@
         <button id="saveBtn" class="btn ghost">Save Template</button>
       </div>
 
-      <label class="small" style="margin-top:12px">Shareable link (encodes inputs)</label>
+      <label class="small" style="margin-top:12px">Shareable link</label>
       <div style="display:flex;gap:8px;margin-top:6px">
         <input id="shareLink" type="text" style="flex:1" readonly>
-        <button id="copyLinkBtn" class="btn ghost" style="width:98px">Copy</button>
+        <button id="copyLinkBtn" class="btn ghost">Copy</button>
       </div>
 
       <label class="small" style="margin-top:12px">Saved templates</label>
-      <div class="saved-list" id="savedList" aria-live="polite"></div>
+      <div class="saved-list" id="savedList"></div>
 
       <div style="display:flex;gap:8px;margin-top:10px">
         <button id="exportJsonBtn" class="btn ghost">Export JSON</button>
@@ -124,322 +116,269 @@
         <button id="importJsonBtn" class="btn ghost">Import JSON</button>
         <button id="clearAllBtn" class="btn ghost">Clear All</button>
       </div>
-
     </div>
 
-    <!-- RIGHT: preview + actions -->
+    <!-- RIGHT: preview -->
     <div class="panel preview-wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:700">Preview</div>
+        <strong>Preview</strong>
         <div style="display:flex;gap:8px">
           <button id="downloadHtmlBtn" class="btn ghost">Download HTML</button>
           <button id="downloadPdfBtn" class="btn">Download PDF</button>
         </div>
       </div>
 
-      <div id="renderArea" class="document" role="article" aria-label="Generated policies">
+      <div id="renderArea" class="document" aria-live="polite">
         <div class="doc-header">
-          <div class="brand-block">
-            <div class="brand-logo" id="brandLogo">P</div>
-            <div>
-              <div class="doc-title" id="docCompany">Company Name</div>
-              <div class="small" id="docUrl">https://example.com</div>
-            </div>
+          <div>
+            <div class="doc-title" id="docCompany"></div>
+            <div class="small" id="docUrl"></div>
           </div>
-          <div class="small">Effective date: <strong id="docDate">2025-01-01</strong></div>
+          <div class="small">Effective: <span id="docDate"></span></div>
         </div>
 
-        <div id="privacyDoc">
-          <h2 style="margin-top:0">Privacy Policy</h2>
-          <p class="small">This Privacy Policy explains how <strong id="ppCompany">Company</strong> (“we”, “us”) collects and uses your information when you use our services.</p>
+        <h2>Privacy Policy</h2>
+        <p id="ppIntro"></p>
 
-          <div class="section">
-            <h3>What we collect</h3>
-            <p id="ppCollect"></p>
-          </div>
+        <div class="section"><h3>What we collect</h3><p id="ppCollect"></p></div>
+        <div class="section"><h3>How we use your data</h3><p id="ppUse"></p></div>
+        <div class="section"><h3>Third parties</h3><p id="ppThird"></p></div>
+        <div class="section"><h3>Data retention</h3><p id="ppRetention"></p></div>
+        <div class="section"><h3>Your rights</h3><p id="ppRights"></p></div>
+        <div class="section"><h3>Applicable law</h3><p id="ppLaw"></p></div>
 
-          <div class="section">
-            <h3>How we use your data</h3>
-            <p id="ppUse"></p>
-          </div>
+        <hr style="margin:18px 0;border:none;border-top:1px solid #eee">
 
-          <div class="section">
-            <h3>Third parties</h3>
-            <p id="ppThird"></p>
-          </div>
+        <h2>Terms of Service</h2>
+        <p id="tsIntro"></p>
 
-          <div class="section">
-            <h3>Data retention</h3>
-            <p id="ppRetention"></p>
-          </div>
+        <div class="section"><h3>Acceptance</h3><p id="tsAcceptance"></p></div>
+        <div class="section"><h3>Accounts & Access</h3><p id="tsAccounts"></p></div>
+        <div class="section"><h3>Payment & Refunds</h3><p id="tsPayment"></p></div>
+        <div class="section"><h3>Liability</h3><p id="tsLiability"></p></div>
+        <div class="section"><h3>Contact & Governing Law</h3><p id="tsContact"></p></div>
 
-          <div class="section">
-            <h3>Your rights</h3>
-            <p id="ppRights"></p>
-          </div>
-        </div>
-
-        <hr style="margin:18px 0; border:none; border-top:1px solid #eee">
-
-        <div id="termsDoc">
-          <h2>Terms of Service</h2>
-          <p class="small">These Terms govern your use of the services provided by <strong id="tsCompany">Company</strong>.</p>
-
-          <div class="section">
-            <h3>Acceptance</h3>
-            <p id="tsAcceptance"></p>
-          </div>
-
-          <div class="section">
-            <h3>Accounts & Access</h3>
-            <p id="tsAccounts"></p>
-          </div>
-
-          <div class="section">
-            <h3>Payment & Refunds</h3>
-            <p id="tsPayment"></p>
-          </div>
-
-          <div class="section">
-            <h3>Limitation of Liability</h3>
-            <p id="tsLiability"></p>
-          </div>
-
-          <div class="section">
-            <h3>Contact</h3>
-            <p id="tsContact"></p>
-          </div>
-
-          <div class="footer-small">If you need a legally-reviewed policy for specific compliance (GDPR, HIPAA, CCPA), consult a lawyer. This generator is a starting template, not legal advice.</div>
-        </div>
-
+        <div class="footer-small"></div>
       </div>
     </div>
   </div>
 
 <script>
-/* ---------- Helpers ---------- */
+/* Utilities */
 const qs = id => document.getElementById(id);
 const fields = ['company','siteUrl','contactEmail','jurisdiction','services','dataCollected','thirdParties','retention','effectiveDate','tone'];
 
-function nowIso(){ return (new Date()).toISOString().slice(0,10); }
-function safe(v){ return v ? v : ''; }
-
-/* ---------- Generate logic (keeps editable fields independent) ---------- */
+/* Build document using current inputs */
 function generateDocument(){
-  const state = {};
-  fields.forEach(f=> state[f] = qs(f).value || '');
+  const s = {};
+  fields.forEach(f=> s[f] = (qs(f).value || '').trim());
+  // Values (no automatic non-user fills)
+  const company = s.company || '';
+  const site = s.siteUrl || '';
+  const email = s.contactEmail || '';
+  const jurisdiction = s.jurisdiction || '';
+  const services = s.services || 'our services';
+  const date = s.effectiveDate || '';
 
-  if(!state.effectiveDate) state.effectiveDate = nowIso();
+  // Compose privacy sections
+  const dataCollected = s.dataCollected || 'Information you provide and usage data.';
+  const thirdParties = s.thirdParties || '';
+  const retention = s.retention || 'We retain data only as long as necessary per business and legal requirements.';
 
-  const tone = state.tone || 'professional';
+  const tone = s.tone || 'professional';
   const friendly = tone === 'friendly';
 
-  const company = state.company || 'Your Company';
-  const site = state.siteUrl || 'https://example.com';
-  const contact = state.contactEmail || 'privacy@example.com';
-  const services = state.services || 'our services';
-  const jurisdiction = state.jurisdiction || 'your jurisdiction';
-  const retention = state.retention || 'we keep data as necessary for business purposes';
-  const data = (state.dataCollected || 'name, email, usage data').split(',').map(s=>s.trim()).filter(Boolean);
-  const third = (state.thirdParties || '').split(',').map(s=>s.trim()).filter(Boolean);
-
-  // craft text
-  const ppCollect = friendly
-    ? `We collect ${data.join(', ')} to provide and improve ${services}.`
-    : `We may collect the following personal data to provide and improve ${services}: ${data.join(', ')}.`;
-
-  const ppUse = friendly
-    ? `We use your information to operate ${services}, process requests, and send important updates.`
-    : `We use collected information to operate and improve ${services}, process transactions, communicate with users, and for analytics.`;
-
-  const ppThird = third.length
-    ? `We share data with third parties such as ${third.join(', ')} to enable payments, analytics, and hosting. We require partners to maintain data security.`
-    : `We do not share personal data with third parties except to provide the Services or when required by law.`;
-
-  const ppRetention = `We retain personal data as needed to provide our services and as required by law. ${retention}. Contact ${contact} to request deletion or export of your data.`;
-
-  const ppRights = friendly
-    ? `You can request access, correction, or deletion of your data at ${contact}. We'll respond promptly.`
-    : `Subject to applicable law, you may have the right to access, correct, delete, or port your personal data. Contact ${contact} for requests.`;
-
-  const tsAcceptance = friendly
-    ? `By using ${site} you agree to these Terms. Check the effective date above for the current version.`
-    : `By accessing ${site}, you agree to these Terms. We may update these Terms from time to time.`;
-
-  const tsAccounts = friendly
-    ? `You are responsible for keeping your account secure and not sharing credentials.`
-    : `Account holders are responsible for maintaining the confidentiality of their credentials and for all activity under their accounts.`;
-
-  const tsPayment = state.services.toLowerCase().includes('paid') ? 
-    `Payment terms are set at checkout; contact ${contact} for billing questions.` :
-    `No payment is required for basic functionality. Paid features will have separate billing terms.`;
-
-  const tsLiability = `To the extent permitted by law, ${company} will not be liable for indirect or consequential damages arising from use of the Services.`;
-
-  const tsContact = `Contact ${contact} for legal questions. These Terms are governed by the laws of ${jurisdiction}.`;
-
-  // write to preview
   qs('docCompany').textContent = company;
   qs('docUrl').textContent = site;
-  qs('docDate').textContent = state.effectiveDate;
+  qs('docDate').textContent = date || '—';
 
-  qs('ppCompany').textContent = company;
-  qs('ppCollect').textContent = ppCollect;
-  qs('ppUse').textContent = ppUse;
-  qs('ppThird').textContent = ppThird;
-  qs('ppRetention').textContent = ppRetention;
-  qs('ppRights').textContent = ppRights;
+  qs('ppIntro').textContent = company
+    ? `This Privacy Policy explains how ${company} collects and uses information when you use ${site || 'our services'}.`
+    : `This Privacy Policy explains how we collect and use information when you use our services.`;
 
-  qs('tsCompany').textContent = company;
-  qs('tsAcceptance').textContent = tsAcceptance;
-  qs('tsAccounts').textContent = tsAccounts;
-  qs('tsPayment').textContent = tsPayment;
-  qs('tsLiability').textContent = tsLiability;
-  qs('tsContact').textContent = tsContact;
+  qs('ppCollect').textContent = dataCollected;
 
-  qs('brandLogo').textContent = (company && company[0])? company[0].toUpperCase() : 'P';
+  qs('ppUse').textContent = friendly
+    ? `We use your information to operate ${services}, provide support, and improve your experience.`
+    : `We use collected information to operate and provide ${services}, process requests, communicate with users, and for analytics and improvement purposes.`;
 
-  // build share link (hash)
+  qs('ppThird').textContent = thirdParties
+    ? `We may share data with the following third parties and integrations: ${thirdParties}. We require partners to safeguard personal data.`
+    : `We do not share personal data with third parties except where required to provide the Services or by law.`;
+
+  qs('ppRetention').textContent = retention;
+
+  qs('ppRights').textContent = email
+    ? `You may contact ${email} to access, correct, or request deletion of your personal data. We will respond in accordance with applicable law.`
+    : `You may contact us to request access, correction, or deletion of your personal data.`;
+
+  qs('ppLaw').textContent = jurisdiction
+    ? `This Privacy Policy is governed by the laws of ${jurisdiction}.`
+    : `This Privacy Policy is governed by the applicable laws where we operate.`;
+
+  // Terms
+  qs('tsIntro').textContent = company
+    ? `These Terms govern your use of services provided by ${company}.`
+    : `These Terms govern your use of our services.`;
+
+  qs('tsAcceptance').textContent = friendly
+    ? `By using these services, you agree to the Terms above. Check the effective date for the current version.`
+    : `By accessing and using the Services, you agree to these Terms. We may modify these Terms from time to time.`;
+
+  qs('tsAccounts').textContent = `You are responsible for maintaining the confidentiality of your account credentials and for any activity that occurs under your account.`;
+
+  qs('tsPayment').textContent = `If paid features apply, payment and refund terms will be provided at checkout.`;
+
+  qs('tsLiability').textContent = `To the maximum extent permitted by law, ${company || 'The provider'} is not liable for indirect, incidental or consequential damages arising from the use of the Services.`;
+
+  // Use jurisdiction in contact/gov law phrase
+  if (email && jurisdiction) {
+    qs('tsContact').textContent = `Questions about these Terms may be sent to ${email}. These Terms are governed by the laws of ${jurisdiction}.`;
+  } else if (email) {
+    qs('tsContact').textContent = `Questions about these Terms may be sent to ${email}.`;
+  } else if (jurisdiction) {
+    qs('tsContact').textContent = `These Terms are governed by the laws of ${jurisdiction}.`;
+  } else {
+    qs('tsContact').textContent = `Contact us for questions about these Terms.`;
+  }
+
+  // Share link (encode inputs in hash)
   const payload = {};
-  fields.forEach(f=> payload[f] = state[f] || '');
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  const link = `${location.origin}${location.pathname}#${encoded}`;
-  qs('shareLink').value = link;
-  // store last generated for downloads
-  qs('renderArea').dataset.savedHtml = qs('renderArea').innerHTML;
+  fields.forEach(f=> payload[f] = s[f] || '');
+  try {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    qs('shareLink').value = `${location.origin}${location.pathname}#${encoded}`;
+  } catch(e) {
+    qs('shareLink').value = '';
+  }
 }
 
-/* ---------- Auto-generate on small pause while typing ---------- */
+/* Live generation while typing (debounced) */
 let typingTimer;
 function scheduleGenerate(){
   clearTimeout(typingTimer);
-  typingTimer = setTimeout(()=> generateDocument(), 700);
+  typingTimer = setTimeout(generateDocument, 600);
 }
 fields.forEach(f => qs(f).addEventListener('input', scheduleGenerate));
-
-/* ---------- Buttons ---------- */
 qs('generateBtn').addEventListener('click', generateDocument);
 
-/* ---------- Save / Load templates (localStorage) ---------- */
+/* Save / Load templates (localStorage) */
 function loadSaved(){
-  const savedList = qs('savedList');
-  savedList.innerHTML = '';
-  const keys = Object.keys(localStorage).filter(k=>k.startsWith('policytpl:')).sort().reverse();
-  keys.forEach(k=>{
-    try{
-      const obj = JSON.parse(localStorage.getItem(k));
-      const title = obj.company || obj.siteUrl || k;
-      const div = document.createElement('div'); div.className='saved-item';
-      const left = document.createElement('div'); left.innerHTML = `<strong>${title}</strong><div class="small">${obj.effectiveDate||''} • ${obj.tone||''}</div>`;
+  const container = qs('savedList');
+  container.innerHTML = '';
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith('ptpl:')).sort().reverse();
+  keys.forEach(key=>{
+    try {
+      const obj = JSON.parse(localStorage.getItem(key));
+      const label = obj.company || obj.siteUrl || key;
+      const div = document.createElement('div'); div.className = 'saved-item';
+      const left = document.createElement('div'); left.innerHTML = `<strong>${label}</strong><div class="small">${obj.effectiveDate||''}</div>`;
       const right = document.createElement('div');
-      right.innerHTML = `<button class="btn ghost" data-key="${k}" onclick="loadTemplate('${k}')">Load</button>
-                         <button class="btn ghost" data-key="${k}" onclick="deleteTemplate('${k}')">Delete</button>`;
+      right.innerHTML = `<button class="btn ghost" onclick='loadTemplate("${key}")'>Load</button> <button class="btn ghost" onclick='deleteTemplate("${key}")'>Delete</button>`;
       div.appendChild(left); div.appendChild(right);
-      savedList.appendChild(div);
-    }catch(e){ console.warn('bad saved tpl',k); }
+      container.appendChild(div);
+    } catch(e){ console.warn('bad template', key); }
   });
 }
 loadSaved();
 
 qs('saveBtn').addEventListener('click', ()=>{
-  const name = qs('company').value || qs('siteUrl').value || `tpl-${Date.now()}`;
-  const key = `policytpl:${name.replace(/\s+/g,'_')}:${Date.now()}`;
   const obj = {};
   fields.forEach(f=> obj[f] = qs(f).value || '');
+  const key = `ptpl:${(qs('company').value||'template').replace(/\s+/g,'_')}:${Date.now()}`;
   localStorage.setItem(key, JSON.stringify(obj));
   loadSaved();
   alert('Template saved locally.');
 });
 
 window.loadTemplate = function(key){
-  try{
+  try {
     const obj = JSON.parse(localStorage.getItem(key));
     fields.forEach(f=> qs(f).value = obj[f] || '');
     generateDocument();
     alert('Template loaded.');
-  }catch(e){ alert('Failed to load.'); }
+  } catch(e) { alert('Failed to load template.'); }
 };
-
 window.deleteTemplate = function(key){
-  if(confirm('Delete this saved template?')){ localStorage.removeItem(key); loadSaved(); }
+  if(confirm('Delete this template?')) { localStorage.removeItem(key); loadSaved(); }
 };
 
-qs('clearAllBtn').addEventListener('click', ()=>{
-  if(confirm('Clear all saved templates?')) {
-    Object.keys(localStorage).filter(k=>k.startsWith('policytpl:')).forEach(k=> localStorage.removeItem(k));
-    loadSaved();
-  }
-});
-
-/* ---------- Export / Import JSON ---------- */
+/* Export / Import JSON */
 qs('exportJsonBtn').addEventListener('click', ()=>{
-  const obj = {};
-  fields.forEach(f=> obj[f] = qs(f).value || '');
+  const obj = {}; fields.forEach(f=> obj[f] = qs(f).value || '');
   const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='policy-template.json'; a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'policy-template.json'; a.click();
 });
 qs('importJsonBtn').addEventListener('click', ()=> qs('importFile').click());
 qs('importFile').addEventListener('change', (e)=>{
   const f = e.target.files[0]; if(!f) return;
   const r = new FileReader();
   r.onload = ()=> {
-    try{
+    try {
       const obj = JSON.parse(r.result);
-      fields.forEach(ff => { if(obj[ff] !== undefined) qs(ff).value = obj[ff]; });
+      fields.forEach(ff => qs(ff).value = obj[ff] || '');
       generateDocument();
-      alert('Imported.');
-    }catch(err){ alert('Invalid JSON'); }
+      alert('Imported template.');
+    } catch(err) { alert('Invalid JSON file.'); }
   };
   r.readAsText(f);
 });
 
-/* ---------- Copy share link ---------- */
+/* Copy share link */
 qs('copyLinkBtn').addEventListener('click', ()=>{
-  if(!qs('shareLink').value) { alert('Generate first'); return; }
-  navigator.clipboard.writeText(qs('shareLink').value).then(()=> alert('Link copied.'));
+  if (!qs('shareLink').value) { alert('Generate first to create a link.'); return; }
+  navigator.clipboard.writeText(qs('shareLink').value).then(()=> alert('Link copied to clipboard.'));
 });
 
-/* ---------- Download HTML ---------- */
+/* Download HTML */
 qs('downloadHtmlBtn').addEventListener('click', ()=>{
-  const title = (qs('company').value || 'policy').replace(/\s+/g,'_').toLowerCase();
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${qs('company').value} - Policies</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Inter,system-ui,Arial,sans-serif;padding:28px;color:#111;background:#f7fafc}.doc{max-width:780px;margin:0 auto;background:white;padding:28px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.06)}h1,h2,h3{color:#0b1220} p{color:#243040}</style></head><body><div class="doc">${qs('renderArea').innerHTML}</div></body></html>`;
-  const blob = new Blob([html], {type:'text/html'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download=`${title}_policies.html`; a.click();
+  const title = (qs('company').value || 'policies').replace(/\s+/g,'_').toLowerCase();
+  const docHtml = `<!doctype html><html><head><meta charset="utf-8"><title>${qs('company').value||'Policies'}</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Inter,system-ui,Arial,sans-serif;padding:28px;color:#111;background:#f7fafc}.doc{max-width:780px;margin:0 auto;background:white;padding:28px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.06)}h1,h2,h3{color:#0b1220} p{color:#243040}</style></head><body><div class="doc">${qs('renderArea').innerHTML}</div></body></html>`;
+  const blob = new Blob([docHtml], {type:'text/html'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${title}_policies.html`; a.click();
 });
 
-/* ---------- Download PDF using html2canvas + jsPDF ---------- */
+/* Download PDF */
 qs('downloadPdfBtn').addEventListener('click', async ()=>{
-  // small UX
-  qs('downloadPdfBtn').textContent = 'Rendering PDF...';
+  qs('downloadPdfBtn').textContent = 'Rendering PDF…';
   try {
     const area = qs('renderArea');
     const canvas = await html2canvas(area, {scale:2, useCORS:true});
     const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ unit:'px', format:[canvas.width, canvas.height] });
+    const pdf = new jsPDF({unit:'px', format:[canvas.width, canvas.height]});
     pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
     pdf.save(`${(qs('company').value||'policies')}_policies.pdf`);
-  } catch(e){ alert('PDF export failed. Try smaller content or use Download HTML.'); console.error(e); }
-  qs('downloadPdfBtn').textContent = 'Download PDF';
+  } catch(e) {
+    console.error(e);
+    alert('PDF export failed — try Download HTML instead.');
+  } finally {
+    qs('downloadPdfBtn').textContent = 'Download PDF';
+  }
 });
 
-/* ---------- Initialize defaults and load hash if present ---------- */
-(function init(){
-  if(!qs('effectiveDate').value) qs('effectiveDate').value = nowIso();
-  if(!qs('company').value) qs('company').value = 'Acme Widgets, Inc.';
-  if(!qs('siteUrl').value) qs('siteUrl').value = 'https://acmewidgets.example';
-  if(!qs('contactEmail').value) qs('contactEmail').value = 'privacy@acmewidgets.example';
+/* Clear all saved templates */
+qs('clearAllBtn').addEventListener('click', ()=>{
+  if(confirm('Clear all saved templates from localStorage?')) {
+    Object.keys(localStorage).filter(k=>k.startsWith('ptpl:')).forEach(k=> localStorage.removeItem(k));
+    loadSaved();
+  }
+});
 
-  // load from URL hash (if present)
-  try {
-    if(location.hash && location.hash.length>1){
-      const encoded = location.hash.slice(1);
-      const json = decodeURIComponent(atob(encoded));
+/* Load from URL hash if present (on open) */
+function loadFromHash(){
+  if(location.hash && location.hash.length>1){
+    try{
+      const json = decodeURIComponent(atob(location.hash.slice(1)));
       const obj = JSON.parse(json);
       fields.forEach(f => { if(obj[f] !== undefined) qs(f).value = obj[f]; });
-    }
-  } catch(e){ console.warn('hash load failed', e); }
+    } catch(e){ console.warn('Failed to load from hash', e); }
+  }
+}
+
+/* Init */
+(function init(){
+  loadFromHash();
   generateDocument();
   loadSaved();
 })();
